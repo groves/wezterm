@@ -604,6 +604,59 @@ mod test {
     }
 
     #[test]
+    fn two_children_one_bottom_aligned() {
+        let root = WidgetId::new();
+        let a = WidgetId::new();
+        let b = WidgetId::new();
+
+        let mut layout = LayoutState::new();
+        let mut root_constraints = Constraints::default();
+        root_constraints.child_orientation = ChildOrientation::Vertical;
+        layout.add_widget(root, &root_constraints, &[a, b]);
+        layout.add_widget(a, &Constraints::default(), &[]);
+        let mut b_constraints = Constraints::default();
+        b_constraints
+            .set_fixed_height(1)
+            .set_valign(VerticalAlignment::Bottom);
+        layout.add_widget(b, &b_constraints, &[]);
+
+        let results = layout.compute_constraints(100, 100, root).unwrap();
+
+        assert_eq!(
+            results,
+            vec![
+                LaidOutWidget {
+                    widget: root,
+                    rect: Rect {
+                        x: 0,
+                        y: 0,
+                        width: 100,
+                        height: 100,
+                    },
+                },
+                LaidOutWidget {
+                    widget: a,
+                    rect: Rect {
+                        x: 0,
+                        y: 0,
+                        width: 100,
+                        height: 99,
+                    },
+                },
+                LaidOutWidget {
+                    widget: b,
+                    rect: Rect {
+                        x: 0,
+                        y: 99,
+                        width: 100,
+                        height: 1,
+                    },
+                },
+            ]
+        );
+    }
+
+    #[test]
     fn three_children_pct() {
         let root = WidgetId::new();
         let a = WidgetId::new();
